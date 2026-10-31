@@ -30,4 +30,4 @@ SUBJECT_KEY = {s: v[0] for s, v in SUBJECTS.items()}
 FIELDS = {s: v[1] for s, v in SUBJECTS.items()}
 
 # 難易度（6段階）
-LEVELS = {0: '基礎', 1: '標準', 2: '演習', 3: '院試', 4: '難関院試', 5: '最難関'}
+LEVELS = {0: '基礎', 1: '標準', 2: '演習', 3: '院試', 4: '院試難関'}

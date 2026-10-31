@@ -11,7 +11,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 
@@ -43,15 +43,32 @@ def main():
         c.font = Font(bold=True, color='FFFFFF')
         c.fill = HEAD
         c.alignment = Alignment(vertical='center', wrap_text=True)
-    counter = {}
+    # 既存の管理表があれば、同じ問題文の問題には前と同じ ID・作成日を使う（学習記録が ID に結びついているため）
+    known, counter = {}, {}
+    if out.exists():
+        old = load_workbook(out, read_only=True)['問題一覧']
+        head = None
+        for r in old.iter_rows(values_only=True):
+            if head is None:
+                head = {h: i for i, h in enumerate(r)}
+                continue
+            pid, q = r[head['ID']], r[head['問題文（LaTeX）']]
+            if not pid or not q:
+                continue
+            known[q] = (pid, r[head['作成日']])
+            code, fno, n = pid.rsplit('-', 2)
+            counter[(code, int(fno))] = max(counter.get((code, int(fno)), 0), int(n))
     today = date.today().isoformat()
     for it in items:
         code = SUBJECTS[it['subject']][0]
         fno = SUBJECTS[it['subject']][1].index(it['field']) + 1
         k = (code, fno)
-        counter[k] = counter.get(k, 0) + 1
-        pid = f'{code}-{fno:02d}-{counter[k]:03d}'
-        row = {'ID': pid, '作成日': today, '科目': it['subject'], '分野': it['field'], '単元・テーマ': it['theme'],
+        if it['q'] in known:
+            pid, made = known[it['q']]
+        else:
+            counter[k] = counter.get(k, 0) + 1
+            pid, made = f'{code}-{fno:02d}-{counter[k]:03d}', today
+        row = {'ID': pid, '作成日': made, '科目': it['subject'], '分野': it['field'], '単元・テーマ': it['theme'],
                '難易度': it['level'], '想定時間(分)': it['minutes'], '問題文（LaTeX）': it['q'], '答え': it['answer'],
                '解答・解説': it['solution'], '核となるアイデア': it['idea'], '参考元（非公開）': '', '作成方法': 'AI作成',
                '検証:二重解答': '', '検証:SymPy等': '✓', '検証:人間確認': '', '検証済み': '', 'タグ': it['tags'],
@@ -64,8 +81,8 @@ def main():
             c.alignment = Alignment(vertical='top', wrap_text=True)
     ws.freeze_panes = 'C2'
     ws.auto_filter.ref = ws.dimensions
-    dv = DataValidation(type='whole', operator='between', formula1='0', formula2='5', showErrorMessage=True,
-                        error='難易度は 0〜5')
+    dv = DataValidation(type='whole', operator='between', formula1='0', formula2='4', showErrorMessage=True,
+                        error='難易度は 0〜4')
     ws.add_data_validation(dv)
     dv.add(f'F2:F{max(ws.max_row, 2000)}')
 
