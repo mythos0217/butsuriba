@@ -31,7 +31,7 @@ function freshState() {
   return {
     cards: {}, problems: {}, pstat: {}, log: [], explains: {},
     settings: { size: 6, newPerDay: 3 },
-    practice: { fields: null, levels: [0, 1, 2, 3, 4, 5], size: 8 }, lv0: 1,
+    practice: { fields: null, levels: [0, 1, 2, 3, 4], size: 8 }, lv0: 1,
     schema: 4,
     newIntroduced: null, streak: { last: null, count: 0 },
     graphExprs: null,
@@ -44,7 +44,7 @@ function load() {
     if (raw) {
       const st = { ...freshState(), ...JSON.parse(raw) };
       if (st.schema !== 4) { // v0.3 以前の記録：難易度の段階と分野が変わったので選択だけ初期化
-        st.practice = { fields: null, levels: [0, 1, 2, 3, 4, 5], size: (st.practice && st.practice.size) || 8 };
+        st.practice = { fields: null, levels: [0, 1, 2, 3, 4], size: (st.practice && st.practice.size) || 8 };
         st.pstat = st.pstat || {};
         st.schema = 4;
       }
@@ -73,6 +73,19 @@ function math(el) {
       { left: '\\(', right: '\\)', display: false }, { left: '$', right: '$', display: false },
     ],
     throwOnError: false,
+  });
+  fitWideMath(el);
+}
+// 画面より広い別行立ての式（行列など）は、70% まで縮めて収める。それでも広ければ横スクロール
+function fitWideMath(el) {
+  requestAnimationFrame(() => {
+    el.querySelectorAll('.katex-display').forEach(d => {
+      const k = d.querySelector('.katex');
+      if (!k || !d.clientWidth) return;
+      k.style.fontSize = '';
+      const ratio = d.clientWidth / d.scrollWidth;
+      if (ratio < 1) k.style.fontSize = `${parseFloat(getComputedStyle(k).fontSize) * Math.max(0.7, ratio * 0.97)}px`;
+    });
   });
 }
 function tex(el, src, display = false) {
@@ -361,7 +374,7 @@ function glossaryHTML(text) {
   return `<div class="glossary"><b>用語</b>${found.map(([w, d]) => `<p><strong>${w}</strong>：${d}</p>`).join('')}</div>`;
 }
 
-// ---------- 鳥「ルート」
+// ---------- 猫「シュレ」
 let birdTimer = null;
 function birdSay(msg, { sound = true, ms = 9000 } = {}) {
   let el = $('#bird');
@@ -1310,7 +1323,7 @@ function renderSettings() {
   const gen = META.generated ? new Date(META.generated) : null;
   view.innerHTML = `
     <div class="fade-in">
-      <div class="kicker">ぶつりば v0.1（エンジン v${VERSION}）</div>
+      <div class="kicker">ぶつりば v0.2（エンジン v${VERSION}）</div>
       <h1>設定</h1>
       <h2>問題データ</h2>
       <div class="panel">
@@ -1324,7 +1337,7 @@ function renderSettings() {
         <div class="setting"><span>画面のテーマ</span>
           <div class="segment theme" id="theme">${[['auto', '自動'], ['light', 'ライト'], ['dark', 'ダーク']].map(([k, v]) => `<button data-t="${k}" class="${(state.settings.theme || 'auto') === k ? 'on' : ''}">${v}</button>`).join('')}</div></div>
         <div class="setting"><span>効果音</span><button class="switch ${state.settings.sound !== false ? 'on' : ''}" id="snd" role="switch" aria-checked="${state.settings.sound !== false}"><i></i></button></div>
-        <div class="setting"><span>${BIRD_NAME}（鳥）の声かけ</span><button class="switch ${state.settings.bird !== false ? 'on' : ''}" id="brd" role="switch" aria-checked="${state.settings.bird !== false}"><i></i></button></div>
+        <div class="setting"><span>${BIRD_NAME}（猫）の声かけ</span><button class="switch ${state.settings.bird !== false ? 'on' : ''}" id="brd" role="switch" aria-checked="${state.settings.bird !== false}"><i></i></button></div>
       </div>
       <h2>テスト記録の書き出し</h2>
       <div class="panel">

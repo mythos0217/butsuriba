@@ -1,4 +1,4 @@
-// アイコン・効果音・テーマ・アプリの鳥「ルート」
+// アイコン・効果音・テーマ・アプリの猫「シュレ」
 export const FILE_VERSION = '0.6.0';
 
 // ---------------------------------------------------------------- アイコン（線画、currentColor）
@@ -56,7 +56,7 @@ export function play(name) {
       case 'wrong': tone(233, 0, 0.26, { type: 'triangle', gain: 0.2, glide: 175 }); break;
       case 'tap': tone(1600, 0, 0.04, { gain: 0.05 }); break;
       case 'finish': [523.3, 659.3, 784, 1046.5].forEach((f, i) => tone(f, i * 0.09, 0.4, { gain: 0.12 })); break;
-      case 'bird': tone(2637, 0, 0.07, { gain: 0.05, glide: 3136 }); tone(2794, 0.1, 0.09, { gain: 0.05, glide: 3520 }); break;
+      case 'bird': tone(660, 0, 0.12, { gain: 0.05, glide: 880 }); tone(880, 0.12, 0.16, { gain: 0.045, glide: 620 }); break;   // にゃ
     }
   } catch { /* 音が出せない環境 */ }
 }
@@ -69,20 +69,26 @@ export function applyTheme(mode) {
   document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', dark ? '#16171b' : '#f6f4ee'));
 }
 
-// ---------------------------------------------------------------- 鳥「ルート」
-// 丸いエナガ風の小鳥（オリジナル）。色はテーマに合わせて CSS 変数から
+// ---------------------------------------------------------------- 猫「シュレ」（シュレーディンガーの猫から）
+// 丸いしろ猫（オリジナル）。色はテーマに合わせて CSS 変数から（変数名は受験数学版の鳥のまま）
 export const BIRD_SVG = `<svg viewBox="0 0 64 64" class="bird-svg" aria-hidden="true">
-  <path d="M50 38c6 1 10 4 11 8-4 0-8-1-12-3z" fill="var(--bird-dark)"/>
-  <ellipse cx="31" cy="35" rx="21" ry="19" fill="var(--bird-body)"/>
-  <path d="M18 40c4 9 22 11 30 2-3 8-10 11-16 11-8 0-13-5-14-13z" fill="var(--bird-belly)"/>
-  <path d="M37 33c6-2 12 1 13 6-6 2-11 0-13-6z" fill="var(--bird-dark)" opacity=".9"/>
-  <circle cx="23.5" cy="29" r="3" fill="var(--bird-eye)"/><circle cx="24.4" cy="28" r="1" fill="#fff"/>
-  <path d="M13.5 31l-5 2 5 2z" fill="var(--bird-beak)"/>
-  <ellipse cx="19" cy="35.5" rx="3.2" ry="2" fill="var(--bird-cheek)" opacity=".7"/>
-  <path d="M27 54l-1.5 5M34 54l1.5 5" stroke="var(--bird-dark)" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M47 50c8 1 12-4 11-10-1-4-4-5-6-3 2 1 3 3 2 6-1 3-4 4-8 3z" fill="var(--bird-dark)"/>
+  <ellipse cx="31" cy="44" rx="17" ry="14" fill="var(--bird-body)"/>
+  <ellipse cx="31" cy="48" rx="10" ry="8.5" fill="var(--bird-belly)"/>
+  <path d="M12 12l4 14 11-6z" fill="var(--bird-body)"/><path d="M50 12l-4 14-11-6z" fill="var(--bird-body)"/>
+  <path d="M14.5 16l2.6 8.5 6.4-3.6z" fill="var(--bird-cheek)" opacity=".75"/><path d="M47.5 16l-2.6 8.5-6.4-3.6z" fill="var(--bird-cheek)" opacity=".75"/>
+  <ellipse cx="31" cy="28" rx="19" ry="15" fill="var(--bird-body)"/>
+  <path d="M24 15c2 3 2 5 1 7M31 14v7M38 15c-2 3-2 5-1 7" stroke="var(--bird-dark)" stroke-width="1.8" stroke-linecap="round" fill="none" opacity=".8"/>
+  <ellipse cx="23.5" cy="28.5" rx="2.6" ry="3.2" fill="var(--bird-eye)"/><circle cx="24.3" cy="27.4" r=".9" fill="#fff"/>
+  <ellipse cx="38.5" cy="28.5" rx="2.6" ry="3.2" fill="var(--bird-eye)"/><circle cx="39.3" cy="27.4" r=".9" fill="#fff"/>
+  <path d="M29.6 33h2.8L31 34.6z" fill="var(--bird-beak)"/>
+  <path d="M31 34.6c-.6 1.6-2.2 2-3.3 1.2M31 34.6c.6 1.6 2.2 2 3.3 1.2" stroke="var(--bird-beak)" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <ellipse cx="18.5" cy="34" rx="3" ry="1.8" fill="var(--bird-cheek)" opacity=".6"/><ellipse cx="43.5" cy="34" rx="3" ry="1.8" fill="var(--bird-cheek)" opacity=".6"/>
+  <path d="M9 31l7 1.5M9 35.5l7-.5M53 31l-7 1.5M53 35.5l-7-.5" stroke="var(--bird-dark)" stroke-width=".9" stroke-linecap="round" opacity=".55"/>
+  <path d="M23 57.5v-3M39 57.5v-3" stroke="var(--bird-dark)" stroke-width="1.6" stroke-linecap="round" opacity=".5"/>
 </svg>`;
 
-export const BIRD_NAME = 'ルート';
+export const BIRD_NAME = 'シュレ';
 
 const HEALTH = [
   'お身体は大丈夫ですか？ 肩に力が入っていたら、一度深呼吸しましょう。',

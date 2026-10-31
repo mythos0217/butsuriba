@@ -464,7 +464,7 @@ details.orig summary { cursor: pointer; }
 .segment.theme { display: inline-grid; grid-template-columns: repeat(3, auto); gap: 4px; }
 .segment.theme button { min-height: 34px; padding: 0 12px; font-size: 13px; }
 
-/* 鳥 */
+/* マスコット（猫「シュレ」） */
 #bird { position: fixed; right: 12px; bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 10px); z-index: 30; display: flex; align-items: flex-end; gap: 6px; pointer-events: none; }
 body.immersive #bird { bottom: calc(env(safe-area-inset-bottom) + 12px); }
 body.immersive #bird:not(.talk) { opacity: 0; }
