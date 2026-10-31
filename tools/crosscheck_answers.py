@@ -174,12 +174,13 @@ def protect_subscripts(s):
     def rep(m):
         base, sub = m.group(1), m.group(2)
         base = GREEK_NAME.get(base, base).rstrip('_')
+        sub = GREEK_NAME.get(sub, sub).rstrip('_')
         name = f'{base}_{sub}'
         key = f'Q{len(SUB_SYMS)}Q'.replace('Q', 'Zz' * 1)
         tok = 'SUBSYM' + ''.join(chr(ord('a') + int(c)) for c in str(len(SUB_SYMS)))
         SUB_SYMS[tok] = Symbol(name)
         return f' {tok} '
-    s = re.sub(r'(' + greek + r'|[A-Za-z])_\{?([A-Za-z0-9]+)\}?', rep, s)
+    s = re.sub(r'(' + greek + r'|[A-Za-z])_\{?(' + greek + r'|[A-Za-z0-9]+)\}?', rep, s)
     s = re.sub(r'(?<![A-Za-z])([A-Za-z])(\d+)(?![\d.])', rep, s)   # m1 → m_1
     return s
 

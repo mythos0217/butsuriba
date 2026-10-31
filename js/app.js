@@ -366,6 +366,11 @@ const GLOSSARY = [
   ['測地線', '曲がった時空での「まっすぐな」線。自由落下する粒子の世界線で、固有時が停留する。'],
   ['ゲージ', 'ポテンシャルの取り方の自由度。$\boldsymbol{A}\to\boldsymbol{A}+\nabla\chi,\ \phi\to\phi-\partial_t\chi$ で電磁場は変わらない。'],
   ['フェルミ準位', '絶対零度で電子が詰まっている最高のエネルギー（化学ポテンシャル）。'],
+  ['応力', '面を通して及ぼし合う単位面積あたりの力。向きと面の向きの両方に依るので2階のテンソル $\\sigma_{ij}$ で表す。'],
+  ['ひずみ', '変形の度合い。変位 $\\boldsymbol{u}$ から $\\varepsilon_{ij}=\\frac12(\\partial_iu_j+\\partial_ju_i)$。'],
+  ['レイノルズ数', '慣性力と粘性力の比 $Re=UL/\\nu$。大きいと乱流になりやすい。'],
+  ['渦度', '流れの局所的な回転 $\\boldsymbol{\\omega}=\\nabla\\times\\boldsymbol{v}$。'],
+  ['循環', '閉曲線に沿った速度の線積分 $\\Gamma=\\oint\\boldsymbol{v}\\cdot d\\boldsymbol{l}$。'],
   ['断熱', '熱のやりとりがないこと。量子力学では「ゆっくり」の意味（断熱定理）で使うこともある。'],
 ];
 function glossaryHTML(text) {
@@ -684,10 +689,13 @@ function labelHTML(label) {
   if (!label) return '';
   const m = label.match(/^(.*?)\s*\[([^\]]+)\]\s*$/);
   const sym = (m ? m[1] : label).trim(), unit = m ? m[2] : '';
+  // 「Ω_2/Ω_1 の下限」のように、式の部分と日本語の部分に分けて、式だけ数式で表示
+  const jm = sym.match(/^(.*?)\s*([ぁ-んァ-ン一-龥ー（(].*)?$/);
+  const head = jm ? jm[1] : sym, tail = jm && jm[2] ? jm[2] : '';
   let symHTML = esc(sym);
-  if (sym && /^[A-Za-zα-ωΑ-Ωħ_0-9{}\s]+$/.test(sym) && !/[ぁ-んァ-ン一-龥]/.test(sym)) {
-    const t = exprTeX(sym);
-    if (t) symHTML = `$${t}$`;
+  if (head && /^[A-Za-zα-ωΑ-Ωθħ_0-9{}\s/^*+\-()]+$/.test(head)) {
+    const t = exprTeX(head);
+    if (t) symHTML = `$${t}$` + (tail ? ` ${esc(tail)}` : '');
   }
   return symHTML + (unit ? ` <span class="unit">[${esc(unit)}]</span>` : '');
 }
@@ -1093,6 +1101,9 @@ const PRESETS = [
   { name: '平均場の自己無撞着方程式', exprs: ['y=tanh(x/t)', 'y=x', 't=0.8'] },
   { name: 'うなり・群速度', exprs: ['y=cos(x)+cos(1.1x)', 'y=2cos(0.05x)'] },
   { name: '相空間（振り子）', exprs: ['y^2/2-cos(x)=E', 'E=0.5'] },
+  { name: '円柱まわりの流線', exprs: ['y-y/(x^2+y^2)=c', 'c=0.5', 'x^2+y^2=1'] },
+  { name: '水面波の分散関係', exprs: ['y=sqrt(x tanh(x h))', 'h=1', 'y=sqrt(x)', 'y=x sqrt(h)'] },
+  { name: 'ポアズイユ流の速度分布', exprs: ['y=1-x^2', 'y=1-x^2/a^2', 'a=1.5'] },
 ];
 
 const PRESETS3 = [
@@ -1323,7 +1334,7 @@ function renderSettings() {
   const gen = META.generated ? new Date(META.generated) : null;
   view.innerHTML = `
     <div class="fade-in">
-      <div class="kicker">ぶつりば v0.2（エンジン v${VERSION}）</div>
+      <div class="kicker">ぶつりば v0.3（エンジン v${VERSION}）</div>
       <h1>設定</h1>
       <h2>問題データ</h2>
       <div class="panel">

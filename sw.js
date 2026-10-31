@@ -1,5 +1,5 @@
 // オフラインで動かすためのキャッシュ。内容を更新したら VERSION を上げる
-const VERSION = 'butsuriba-v0.2.0';
+const VERSION = 'butsuriba-v0.3.0';
 const FILES = [
   "./",
   "index.html",
