@@ -3,12 +3,12 @@
 //       sin^2 x、|x|、√、π、θ、{ } を括弧として扱う
 
 export const FILE_VERSION = '0.6.0';
-const FUNC_NAMES = ['arcsin', 'arccos', 'arctan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh',
-  'sin', 'cos', 'tan', 'exp', 'log', 'ln', 'sqrt', 'abs', 'floor', 'ceil', 'sign'];
+const FUNC_NAMES = ['arcsin', 'arccos', 'arctan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'coth', 'sech', 'csch', 'arsinh', 'arcosh', 'artanh',
+  'sin', 'cos', 'tan', 'cot', 'sec', 'csc', 'exp', 'log', 'ln', 'sqrt', 'abs', 'floor', 'ceil', 'sign'];
 const CONST_NAMES = ['pi', 'e'];
 // 物理用：ギリシャ文字の名前（omega → ω）と ħ（hbar）を1つの文字として扱う
 export const GREEK = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', zeta: 'ζ', eta: 'η', theta: 'θ',
-  kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', rho: 'ρ', sigma: 'σ', tau: 'τ', phi: 'φ', chi: 'χ', psi: 'ψ',
+  iota: 'ι', kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', rho: 'ρ', sigma: 'σ', tau: 'τ', phi: 'φ', chi: 'χ', psi: 'ψ',
   omega: 'ω', Gamma: 'Γ', Delta: 'Δ', Theta: 'Θ', Lambda: 'Λ', Sigma: 'Σ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω', hbar: 'ħ' };
 const GREEK_TEX = Object.fromEntries(Object.entries(GREEK).map(([k, v]) => [v, k === 'hbar' ? '\\hbar' : '\\' + k]));
 const NAMES = [...FUNC_NAMES, ...CONST_NAMES, ...Object.keys(GREEK)].sort((a, b) => b.length - a.length);
@@ -28,23 +28,33 @@ function rpow(a, b) {
 
 export const FN = {
   sin: Math.sin, cos: Math.cos, tan: Math.tan,
+  cot: (x) => 1 / Math.tan(x), sec: (x) => 1 / Math.cos(x), csc: (x) => 1 / Math.sin(x),
   asin: Math.asin, acos: Math.acos, atan: Math.atan,
   arcsin: Math.asin, arccos: Math.acos, arctan: Math.atan,
   sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+  coth: (x) => 1 / Math.tanh(x), sech: (x) => 1 / Math.cosh(x), csch: (x) => 1 / Math.sinh(x),
+  arsinh: Math.asinh, arcosh: Math.acosh, artanh: Math.atanh,
   exp: Math.exp, log: Math.log, ln: Math.log, sqrt: Math.sqrt, abs: Math.abs,
   floor: Math.floor, ceil: Math.ceil, sign: Math.sign, pow: rpow,
 };
 
 // 添字：m_1、ω_0、k_B、m_{e} を1つの文字として扱う（直前の文字に付ける）
 function subscript(s, i, out) {
+  // x'、x'' のようなダッシュ付きの変数（直前の文字に付ける）
+  if (s[i] === "'" || s[i] === '′') {
+    const last = out[out.length - 1];
+    if (last && last.k === 'var') { while (s[i] === "'" || s[i] === '′') { last.v += "'"; i++; } }
+    return subscript(s, i, out);
+  }
   if (s[i] !== '_') return i;
   const last = out[out.length - 1];
   if (!last || last.k !== 'var') return i;
-  let m = s.slice(i + 1).match(/^\{([A-Za-z0-9θα-ωΓΔΘΛΣΦΨΩ]+)\}/) || s.slice(i + 1).match(/^([A-Za-z0-9]+|[θα-ωΓΔΘΛΣΦΨΩ])/);
+  let m = s.slice(i + 1).match(/^\{([A-Za-z0-9θα-ωΓΔΘΛΣΦΨΩ]+)\}/) || s.slice(i + 1).match(/^([A-Za-z0-9]+|[θα-ωΓΔΘΛΣΦΨΩ]|[+\-⊥∥](?![0-9A-Za-z(]))/);
   if (m && GREEK[m[1]]) m = [m[0], GREEK[m[1]]];   // p_theta → p_θ
   if (!m) return i;
   last.v += '_' + m[1];
-  return i + 1 + m[0].length;
+  const j = i + 1 + m[0].length;
+  return (s[j] === "'" || s[j] === '′') ? subscript(s, j, out) : j;
 }
 
 function tokenize(src) {
@@ -68,7 +78,7 @@ function tokenize(src) {
       i = j; continue;
     }
     if (c === 'π') { out.push({ k: 'const', v: 'pi' }); i++; continue; }
-    if (/[θαβγδεζηκλμνξρστφχψωΓΔΘΛΣΦΨΩħ]/.test(c)) { out.push({ k: 'var', v: c }); i++; i = subscript(s, i, out); continue; }
+    if (/[θαβγδεζηικλμνξρστφχψωΓΔΘΛΣΦΨΩħ]/.test(c)) { out.push({ k: 'var', v: c }); i++; i = subscript(s, i, out); continue; }
     if (c === '√') { out.push({ k: 'func', v: 'sqrt' }); i++; continue; }
     if (/[a-zA-Z]/.test(c)) {
       let j = i;
@@ -267,9 +277,10 @@ function prec(ast) {
   return 9;
 }
 const TEX_FN = {
-  sin: '\\sin', cos: '\\cos', tan: '\\tan', log: '\\log', ln: '\\log', exp: '\\exp',
+  sin: '\\sin', cos: '\\cos', tan: '\\tan', cot: '\\cot', sec: '\\sec', csc: '\\csc', log: '\\log', ln: '\\log', exp: '\\exp',
   asin: '\\arcsin', acos: '\\arccos', atan: '\\arctan', arcsin: '\\arcsin', arccos: '\\arccos', arctan: '\\arctan',
-  sinh: '\\sinh', cosh: '\\cosh', tanh: '\\tanh',
+  sinh: '\\sinh', cosh: '\\cosh', tanh: '\\tanh', coth: '\\coth', sech: '\\operatorname{sech}', csch: '\\operatorname{csch}',
+  arsinh: '\\operatorname{arsinh}', arcosh: '\\operatorname{arcosh}', artanh: '\\operatorname{artanh}',
 };
 function wrap(s, cond) { return cond ? `\\left(${s}\\right)` : s; }
 
@@ -282,6 +293,8 @@ function numTeX(v) {
   return String(v);
 }
 function varTeX(n) {
+  const pm = n.match(/^(.*?)('+)$/);
+  if (pm) return varTeX(pm[1]) + pm[2];
   const [b, sub] = n.split('_');
   const base = GREEK_TEX[b] ? GREEK_TEX[b] + ' ' : b;
   const subT = GREEK_TEX[sub] || (sub && sub.length > 1 && /^[A-Za-z]+$/.test(sub) ? `\\mathrm{${sub}}` : sub);

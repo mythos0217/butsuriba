@@ -366,6 +366,9 @@ const GLOSSARY = [
   ['測地線', '曲がった時空での「まっすぐな」線。自由落下する粒子の世界線で、固有時が停留する。'],
   ['ゲージ', 'ポテンシャルの取り方の自由度。$\boldsymbol{A}\to\boldsymbol{A}+\nabla\chi,\ \phi\to\phi-\partial_t\chi$ で電磁場は変わらない。'],
   ['フェルミ準位', '絶対零度で電子が詰まっている最高のエネルギー（化学ポテンシャル）。'],
+  ['リアプノフ指数', '近い2つの軌道の距離が $e^{\\lambda t}$ で離れていくときの $\\lambda$。正ならカオス（初期値鋭敏性）。'],
+  ['密度行列', '純粋状態と混合状態をまとめて表す演算子 $\\rho=\\sum_i p_i|\\psi_i\\rangle\\langle\\psi_i|$。$\\mathrm{tr}\\,\\rho^2=1$ なら純粋状態。'],
+  ['マスター方程式', '各状態にいる確率 $P_i(t)$ の時間変化を遷移率で書いた方程式 $\\dot P_i=\\sum_j(w_{ij}P_j-w_{ji}P_i)$。'],
   ['応力', '面を通して及ぼし合う単位面積あたりの力。向きと面の向きの両方に依るので2階のテンソル $\\sigma_{ij}$ で表す。'],
   ['ひずみ', '変形の度合い。変位 $\\boldsymbol{u}$ から $\\varepsilon_{ij}=\\frac12(\\partial_iu_j+\\partial_ju_i)$。'],
   ['レイノルズ数', '慣性力と粘性力の比 $Re=UL/\\nu$。大きいと乱流になりやすい。'],
@@ -1101,6 +1104,8 @@ const PRESETS = [
   { name: '平均場の自己無撞着方程式', exprs: ['y=tanh(x/t)', 'y=x', 't=0.8'] },
   { name: 'うなり・群速度', exprs: ['y=cos(x)+cos(1.1x)', 'y=2cos(0.05x)'] },
   { name: '相空間（振り子）', exprs: ['y^2/2-cos(x)=E', 'E=0.5'] },
+  { name: 'ロジスティック写像', exprs: ['y=r x(1-x)', 'r=3.2', 'y=x'] },
+  { name: 'WKB の古典的転回点', exprs: ['y=x^2/2', 'y=E', 'E=2.5', 'y=E+sqrt(abs(E-x^2/2))'] },
   { name: '円柱まわりの流線', exprs: ['y-y/(x^2+y^2)=c', 'c=0.5', 'x^2+y^2=1'] },
   { name: '水面波の分散関係', exprs: ['y=sqrt(x tanh(x h))', 'h=1', 'y=sqrt(x)', 'y=x sqrt(h)'] },
   { name: 'ポアズイユ流の速度分布', exprs: ['y=1-x^2', 'y=1-x^2/a^2', 'a=1.5'] },
@@ -1334,7 +1339,7 @@ function renderSettings() {
   const gen = META.generated ? new Date(META.generated) : null;
   view.innerHTML = `
     <div class="fade-in">
-      <div class="kicker">ぶつりば v0.3（エンジン v${VERSION}）</div>
+      <div class="kicker">ぶつりば v0.4（エンジン v${VERSION}）</div>
       <h1>設定</h1>
       <h2>問題データ</h2>
       <div class="panel">
