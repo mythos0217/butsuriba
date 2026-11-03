@@ -1,0 +1,62 @@
+[
+ {
+  "subject": "量子力学",
+  "field": "時間発展と描像",
+  "level": 2,
+  "removed_theme": "無限井戸の波束の再生（リバイバル）"
+ },
+ {
+  "subject": "量子力学",
+  "field": "角運動量とスピン",
+  "level": 0,
+  "removed_theme": "磁場中のスピンの歳差運動"
+ },
+ {
+  "subject": "実験学",
+  "field": "確率分布と検定",
+  "level": 4,
+  "removed_theme": "計数器の不感時間：ポアソン過程の数え落としと補正"
+ },
+ {
+  "subject": "実験学",
+  "field": "誤差と有効数字",
+  "level": 4,
+  "removed_theme": "アラン分散：白色雑音とドリフトがあるときの最適な平均時間"
+ },
+ {
+  "subject": "固体物理学",
+  "field": "バンド理論",
+  "level": 1,
+  "removed_theme": "半導体中のドナー準位（水素原子模型）"
+ },
+ {
+  "subject": "固体物理学",
+  "field": "結晶構造と逆格子",
+  "level": 1,
+  "removed_theme": "面心立方格子の逆格子とブリルアンゾーンの体積"
+ },
+ {
+  "subject": "固体物理学",
+  "field": "自由電子モデル",
+  "level": 0,
+  "removed_theme": "ホール効果によるキャリア密度の測定"
+ },
+ {
+  "subject": "固体物理学",
+  "field": "自由電子モデル",
+  "level": 2,
+  "removed_theme": "ヴィーデマン＝フランツ則とローレンツ数"
+ },
+ {
+  "subject": "固体物理学",
+  "field": "自由電子モデル",
+  "level": 3,
+  "removed_theme": "パウリ常磁性"
+ },
+ {
+  "subject": "固体物理学",
+  "field": "自由電子モデル",
+  "level": 4,
+  "removed_theme": "ランダウアー公式とコンダクタンスの量子化"
+ }
+]

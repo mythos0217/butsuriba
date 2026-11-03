@@ -1,0 +1,62 @@
+[
+ {
+  "subject": "物理数学",
+  "field": "フーリエ解析・デルタ関数",
+  "level": 3,
+  "removed_theme": "減衰振動子の遅延グリーン関数と因果律"
+ },
+ {
+  "subject": "力学",
+  "field": "中心力と惑星運動",
+  "level": 1,
+  "removed_theme": "ラザフォード散乱の衝突径数と微分断面積"
+ },
+ {
+  "subject": "特殊相対論",
+  "field": "4元運動量と衝突",
+  "level": 4,
+  "removed_theme": "相対論的ロケット方程式（光子ロケットと有限の噴射速度）"
+ },
+ {
+  "subject": "特殊相対論",
+  "field": "4元運動量と衝突",
+  "level": 4,
+  "removed_theme": "3体崩壊の運動学：ミューオン崩壊と中性子のベータ崩壊"
+ },
+ {
+  "subject": "熱力学",
+  "field": "第2法則とエントロピー",
+  "level": 0,
+  "removed_theme": "熱伝導によるエントロピー生成と失われた仕事"
+ },
+ {
+  "subject": "統計力学",
+  "field": "確率過程とマスター方程式",
+  "level": 0,
+  "removed_theme": "ランダムウォークと拡散係数"
+ },
+ {
+  "subject": "統計力学",
+  "field": "確率過程とマスター方程式",
+  "level": 3,
+  "removed_theme": "過減衰クラマース脱出率"
+ },
+ {
+  "subject": "量子力学",
+  "field": "WKB近似と断熱近似",
+  "level": 2,
+  "removed_theme": "重力場中の量子跳ね返り（量子バウンサー）"
+ },
+ {
+  "subject": "量子力学",
+  "field": "摂動論と変分法",
+  "level": 4,
+  "removed_theme": "ヘリウム 1s2s 状態の交換分裂"
+ },
+ {
+  "subject": "量子力学",
+  "field": "時間発展と描像",
+  "level": 1,
+  "removed_theme": "調和振動子のハイゼンベルク描像と相関関数"
+ }
+]

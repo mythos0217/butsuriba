@@ -23,7 +23,7 @@ from make_input_answers import split_answer, split_top  # noqa: E402
 
 GREEK_NAME = {'α': 'alpha', 'β': 'beta', 'γ': 'gamma', 'δ': 'delta', 'θ': 'theta', 'φ': 'phi', 'ω': 'omega',
               'λ': 'lambda_', 'μ': 'mu', 'ρ': 'rho', 'σ': 'sigma', 'τ': 'tau', 'ψ': 'psi', 'ξ': 'xi', 'η': 'eta',
-              'ζ': 'zeta', 'κ': 'kappa', 'ν': 'nu', 'ε': 'epsilon', 'χ': 'chi',
+              'ζ': 'zeta', 'ι': 'iota', 'κ': 'kappa', 'ν': 'nu', 'ε': 'epsilon', 'χ': 'chi',
               'Γ': 'Gamma', 'Δ': 'Delta', 'Θ': 'Theta', 'Λ': 'Lambda', 'Σ': 'Sigma', 'Φ': 'Phi', 'Ψ': 'Psi', 'Ω': 'Omega'}
 TRANS = standard_transformations + (convert_xor, split_symbols, implicit_multiplication_application)
 
@@ -77,6 +77,23 @@ def brace_args(t):
     return ''.join(out)
 
 
+def paren_mul(t):
+    out, i = [], 0
+    for i, ch in enumerate(t):
+        k = i - 1
+        while k >= 0 and t[k] == ' ':
+            k -= 1
+        if ch == '(' and k >= 0 and re.match(r'[a-zA-Z0-9}]', t[k]):
+            j = k
+            while j >= 0 and t[j].isalpha():
+                j -= 1
+            is_cmd = j >= 0 and t[j] == '\\' and j < k
+            if not is_cmd:
+                out.append(' \\times ')
+        out.append(ch)
+    return ''.join(out)
+
+
 def clean_tex(t):
     # 物理用：\hbar、\approx、単位（\,\mathrm{m/s} など）を整理
     t = t.replace('\\hbar', ' Y_{9} ')
@@ -88,11 +105,13 @@ def clean_tex(t):
     t = re.sub(r'\\text\{[^}]*\}', ',', t)
     t = t.replace('\\ ', ' ').replace('\\dfrac', '\\frac').replace('\\tfrac', '\\frac')
     t = t.replace('\\leqq', '\\le').replace('\\geqq', '\\ge').replace('\\cdot', '\\times')
-    t = re.sub(r'\^\s*\{?\\circ\}?', '', t)
+    t = re.sub(r'\^\s*\{?\\circ\}?\s*(\\mathrm\{C\}|\\mathrm\{K\})?', '', t)
     t = t.replace('\\{', '(').replace('\\}', ')')
     t = re.sub(r'\\(pi|varphi|phi|theta|vartheta|alpha|beta|gamma|delta|epsilon|varepsilon|zeta|eta|kappa|lambda|mu|nu|xi|rho|sigma|tau|chi|psi|omega|hbar|Gamma|Delta|Theta|Lambda|Sigma|Phi|Psi|Omega)\s*\(', r'\\\1 \\times (', t)
-    t = re.sub(r'(?<![\\a-zA-Z])d(?![a-zA-Z])', r'\\mathit{d}', t)   # 単独の d は微分記号でなく変数
-    t = re.sub(r'(?<![\\a-zA-Z])([a-zA-Z0-9}])\s*\(', r'\1 \\times (', t)   # n(n-1) は掛け算
+    t = re.sub(r'(?<![\\a-zA-Z])d(?![a-zA-Z_])', r'\\mathit{d}', t)   # 単独の d は微分記号でなく変数
+    # \sin^4(\theta/2) → (\sin(\theta/2))^4（parse_latex が読めない形を直す）
+    t = re.sub(r'\\(sin|cos|tan|sinh|cosh|tanh|cot)\s*\^\s*\{?(\d+)\}?\s*\(([^()]*)\)', r'(\\\1(\3))^{\2}', t)
+    t = paren_mul(t)   # n(n-1)、aT(L_1-L_0)、wx(L-x) は掛け算（\\sin( などの命令は除く）
     return brace_args(t).strip()
 
 
@@ -166,6 +185,12 @@ SUB_SYMS = {}
 def protect_subscripts(s):
     """m_1・ω_0・k_B・m1・hbar を1つの記号にして、文字の分解から守る"""
     s = re.sub(r'(?<![A-Za-z])hbar(?![A-Za-z])|ħ', ' Hbarsym ', s)
+    # x' → 記号 "x'"（LaTeX 側の parse_latex も x' を1つの記号として読む）
+    def prime(m):
+        tok = 'PRIMESYM' + ''.join(chr(ord('a') + int(c)) for c in str(len(SUB_SYMS)))
+        SUB_SYMS[tok] = Symbol(m.group(1) + "'" * len(m.group(2)))
+        return f' {tok} '
+    s = re.sub(r"(?<![A-Za-z])([A-Za-z])('+)", prime, s)
     s = re.sub(r'(?<![A-Za-z])lambda(?![A-Za-z_])', ' lambda_ ', s)
     s = re.sub(r'(\d)[eE]([+-]?\d+)', r'\1*10**(\2)', s)
     s = re.sub(r'(\d)(?=[A-Za-z])', r'\1 ', s)   # 3J → 3 J（Python の虚数リテラルにしない）
@@ -174,13 +199,13 @@ def protect_subscripts(s):
     def rep(m):
         base, sub = m.group(1), m.group(2)
         base = GREEK_NAME.get(base, base).rstrip('_')
-        sub = GREEK_NAME.get(sub, sub).rstrip('_')
+        sub = {'+': 'plus', '-': 'minus'}.get(sub, GREEK_NAME.get(sub, sub).rstrip('_'))
         name = f'{base}_{sub}'
         key = f'Q{len(SUB_SYMS)}Q'.replace('Q', 'Zz' * 1)
         tok = 'SUBSYM' + ''.join(chr(ord('a') + int(c)) for c in str(len(SUB_SYMS)))
         SUB_SYMS[tok] = Symbol(name)
         return f' {tok} '
-    s = re.sub(r'(' + greek + r'|[A-Za-z])_\{?(' + greek + r'|[A-Za-z0-9]+)\}?', rep, s)
+    s = re.sub(r'(' + greek + r'|[A-Za-z])_\{?(' + greek + r'|[A-Za-z0-9]+|[+\-](?![0-9A-Za-z(]))\}?', rep, s)
     s = re.sub(r'(?<![A-Za-z])([A-Za-z])(\d+)(?![\d.])', rep, s)   # m1 → m_1
     return s
 
@@ -195,7 +220,7 @@ def plain_to_sympy(s):
         s = s.replace(g, f' {name} ')
     s = s.replace('π', ' pi ').replace('√', 'sqrt')
     s = re.sub(r'\|([^|]+)\|', r'Abs(\1)', s)
-    funcs = {'arctan', 'arcsin', 'arccos', 'abs', 'EulerE', 'ln', 'sqrt', 'sin', 'cos', 'tan', 'log', 'exp', 'Abs', 'pi', 'E', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh',
+    funcs = {'coth', 'sech', 'csch', 'cot', 'sec', 'csc', 'arctan', 'arcsin', 'arccos', 'abs', 'EulerE', 'ln', 'sqrt', 'sin', 'cos', 'tan', 'log', 'exp', 'Abs', 'pi', 'E', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh',
              'alpha', 'beta', 'gamma', 'delta', 'theta', 'phi', 'omega', 'lambda_', 'mu', 'rho', 'sigma', 'tau', 'psi', 'xi',
              'eta', 'zeta', 'kappa', 'nu', 'epsilon', 'chi', 'Gamma', 'Delta', 'Omega', 'Lambda', 'Phi', 'Psi', 'Sigma', 'Theta',
              'Hbarsym', *SUB_SYMS.keys()}

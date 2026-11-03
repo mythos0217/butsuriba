@@ -17,7 +17,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from physics_fields import SUBJECTS, LEVELS  # noqa: E402
+from physics_fields import SUBJECTS, LEVELS, SHEET_ORDER  # noqa: E402
 
 COLS = ['ID', '作成日', '科目', '分野', '単元・テーマ', '難易度', '想定時間(分)', '問題文（LaTeX）', '答え', '解答・解説',
         '核となるアイデア', '参考元（非公開）', '作成方法', '検証:二重解答', '検証:SymPy等', '検証:人間確認', '検証済み', 'タグ', 'メモ',
@@ -88,9 +88,9 @@ def main():
 
     wf = wb.create_sheet('分野一覧')
     wf.append(['科目', '分野', '科目記号', '分野番号', '問題数'])
-    for s, (code, fields) in SUBJECTS.items():
-        for n, f in enumerate(fields, 1):
-            wf.append([s, f, code, n, sum(1 for it in items if it['subject'] == s and it['field'] == f)])
+    for s, f in SHEET_ORDER:   # 既存の分野キーを保つため、後から足した分野は最後に並べる
+        code, fields = SUBJECTS[s]
+        wf.append([s, f, code, fields.index(f) + 1, sum(1 for it in items if it['subject'] == s and it['field'] == f)])
     for c in wf[1]:
         c.font = Font(bold=True, color='FFFFFF')
         c.fill = HEAD
